@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Rolagem de Atributos - T20</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1976D2;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 6px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Rolagem de Atributos - T20</h1>
+  <button onclick="rolagemDeAtributos_T20()">Rolar Atributos</button>
+
+  <pre id="resultado">Clique no botão para começar...</pre>
+
+  <script>
+    function rolar4d6() {
+      let dados = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1);
+      let menor = Math.min(...dados);
+      let soma = dados.reduce((a, b) => a + b, 0) - menor;
+      return { soma, menor };
+    }
+
+    function converterParaAtributo(valor) {
+      if (valor <= 7) return -2;
+      if (valor <= 9) return -1;
+      if (valor <= 11) return 0;
+      if (valor <= 13) return 1;
+      if (valor <= 15) return 2;
+      if (valor <= 17) return 3;
+      return 4;
+    }
+
+    function rolagemDeAtributos_T20() {
+      let valores = [];
+
+      while (valores.length < 6) {
+        let { soma } = rolar4d6();
+        while (soma < 6) {
+          let reroll = Array.from({ length: 3 }, () => Math.floor(Math.random() * 6) + 1);
+          let novo = Math.floor(Math.random() * 6) + 1;
+          reroll.push(novo);
+          reroll.sort((a, b) => a - b);
+          soma = reroll[1] + reroll[2] + reroll[3];
+        }
+        valores.push(soma);
+      }
+
+      let atributos = valores.map(converterParaAtributo);
+
+      while (atributos.reduce((a, b) => a + b, 0) < 6) {
+        let menor = Math.min(...atributos);
+        let idx = atributos.indexOf(menor);
+
+        let novaSoma;
+        do {
+          let reroll = Array.from({ length: 3 }, () => Math.floor(Math.random() * 6) + 1);
+          let novo = Math.floor(Math.random() * 6) + 1;
+          reroll.push(novo);
+          reroll.sort((a, b) => a - b);
+          novaSoma = reroll[1] + reroll[2] + reroll[3];
+        } while (novaSoma < 6);
+
+        valores[idx] = novaSoma;
+        atributos[idx] = converterParaAtributo(novaSoma);
+      }
+
+      let output = `🎲 Valores rolados: ${JSON.stringify(valores)}\n📊 Atributos finais: ${JSON.stringify(atributos)}`;
+      document.getElementById("resultado").textContent = output;
+    }
+  </script>
+
+</body>
+</html>
